@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from services.user_service.routers import router
+from routers import router
 
 app = FastAPI(title="User Service")
 
@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+app.include_router(router, prefix="/user")
 
 if __name__ == "__main__":
     import uvicorn

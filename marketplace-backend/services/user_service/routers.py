@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from .database import get_db
-from .models import User
-from .auth import hash_password, verify_password, create_access_token
-from .mail_config import send_verification_email
+from database import get_db
+from models import User
+from auth import hash_password, verify_password, create_access_token
+from mail_config import send_verification_email
 from pydantic import BaseModel
 import uuid
 from fastapi.security import OAuth2PasswordRequestForm
@@ -55,7 +55,7 @@ def verify_email(token: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
     user.is_verified = True
-    user.verification_token = None  # 使 token 失效
+    user.verification_token = None
     db.commit()
 
     return {"message": "Email verified successfully!"}
@@ -96,3 +96,39 @@ def google_callback(code: str, db: Session = Depends(get_db)):
 
     token = create_access_token({"sub": user.email})
     return {"access_token": token, "token_type": "bearer"}
+
+"""
+class CartItemRequest(BaseModel):
+    battery_id: str
+    quantity: int = 1
+
+@router.post("/cart", response_model=dict)
+def add_to_cart(
+    item: CartItemRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    cart_item = db.query(CartItem).filter(
+        CartItem.user_id == current_user.id,
+        CartItem.battery_id == item.battery_id
+    ).first()
+    if cart_item:
+        cart_item.quantity += item.quantity
+    else:
+        cart_item = CartItem(
+            user_id=current_user.id,
+            battery_id=item.battery_id,
+            quantity=item.quantity
+        )
+        db.add(cart_item)
+    db.commit()
+    return {"success": True, "message": "Battery added to cart!"}
+
+@router.get("/cart", response_model=list)
+def get_cart(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    cart_items = db.query(CartItem).filter(CartItem.user_id == current_user.id).all()
+    return cart_items
+"""

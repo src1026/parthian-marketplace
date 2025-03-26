@@ -29,7 +29,7 @@ async def send_verification_email(email: str, token: str):
         recipients=[email],
         body=f"""
         <p>Click the link to verify your email:</p>
-        <a href="http://localhost:8001/auth/verify?token={token}">Verify Email</a>
+        <a href="http://localhost:8001/user/auth/verify?token={token}">Verify Email</a>
         """,
         subtype="html"
     )
